@@ -4,8 +4,7 @@ var correctCounter = 0;
 
 // counter to keep track which question to generate in array
 var currentQuestion = 0;
-// current saved answer to be pushed to array
-var savedAnswers = [];
+var answerTracker = 0;
 
 // test array for dynamically creating the questions
 var questions = [
@@ -13,72 +12,87 @@ var questions = [
 		choices: ["yes", "no", "maybe so"],
 		answer: "yes" },
 	
-	{ 	question: "Are you sure?",
+	{ question: "Are you sure?",
 		choices: ["I mean hopefully", "no its not working"],
-		answer: "I mean hopefully" }
+		answer: "I mean hopefully" },
+
+  { question: "This is the last question",
+    choices: ["I mean hopefully", "this quiz is short and sucks"],
+    answer: "I mean hopefully" }  
 ]
 
 // when the page loads it will run the first question/choices
 $(window).on('load', function() {
   game();
-  // timer();
+  timer();
   $("#nextOne").on("click", function() {
     nextQuestion();
   })
 }) 
 
 var game = function() {
-  $('#title').html("<h2 class='h2'>" + questions[currentQuestion].question) + "<h2>";
-  for (i=0; i<questions[currentQuestion].choices.length; i++) {
-      var label = $('<label class="btn btn-warning">')
-        .text(questions[currentQuestion].choices[i])
-        .attr("value", questions[currentQuestion].choices[i])
-        .attr("id", "label" + [i] + "");
-      var display = $('<input type="radio" name="options" autocomplete="off" >')
-      .attr("id", "choices" + [i] + "");
-     $('#questions').append(label); 
-     $("#label" + [i] + "").append(display); 
+// empties the div first before populating it with the new question  
+  $('#title').html('');
+  if (currentQuestion === questions.length) {
+    $("#nextOne").attr("disabled", true);
+    $("#nextOne").text("Refresh to try again!");
+    endGame();
+  } else {
+  // generating the question  
+    $('#title').html("<h2 class='h2'>" + questions[currentQuestion].question) + "<h2>";
+  // for loop to generate all the choices that will be put inside a label and in a class of a button  
+    for (i=0; i<questions[currentQuestion].choices.length; i++) {
+        var label = $('<label class="btn btn-warning">')
+          .text(questions[currentQuestion].choices[i])
+          .attr("value", questions[currentQuestion].choices[i])
+          .attr("id", "label" + [i] + "");
+  // making the buttons radio so only one can be displayed, name has to be the same        
+        var display = $('<input type="radio" name="options" autocomplete="off" >')
+        .attr("id", "choices" + [i] + "");
+  // appending the label to the div and the button to the label
+       $('#questions').append(label); 
+       $("#label" + [i] + "").append(display); 
+    }
+  // adds 1 to the currentQuestion so that it can move to the next part of the array   
+    currentQuestion++;
   }
-  var button = $('<button>')
-    .addClass("btn btn-danger")
-    .attr("id", "nextOne")
-    .text("Next Question");
-    $('#next').append(button);  
-  currentQuestion++;
 };
   
-var timer = function () {
-  console.log("this should not be working!");
-  
-}
-
+// once the next button is clicked it will compare the user which is the radio button that has the class .active
+// and compare it to the answer in the array
+// answerTracker starts at zero so that the answer is lined up with the question array, because of the currentQuestion++ at the end of the game()
 var nextQuestion = function() {
   var currentAnswer = $(".active").attr("value");
-  var i = 0;
-    if (currentAnswer.toString() == questions[i].answer) {
-      alert("CORRECT!");
-      $('#title').html("");
+// checking to see if the answers are matching up  
+  console.log(questions[answerTracker].answer);
+    if (currentAnswer.toString() === questions[answerTracker].answer) {
+      // console.log("correct!");
+      $('#title').html("CORRECT!");
       $('#questions').html("");
-      $('#next').html("");
-      game();
       correctCounter++;
-      i++;
     } else {
-      alert("INCORRECT!");
-      $('#title').html("");
+      // console.log("incorrect!");
+      $('#title').html("INCORRECT!");
       $('#questions').html("");
-      $('#next').html("");
-      game();
       incorrectCounter++;
-      i++;
     }
-  if (currentQuestion === questions.length) {
-    endGame();
-  }
+  game();
+  answerTracker++;  
 }  
 
+// displays end game score
 var endGame = function() {
-  console.log("game over!");
-  
+  $('#title').html("GAME OVER!");
+  $('#questions').html("<p>Corrent Answers: " + correctCounter +
+      "<br />Incorrect Answers: " + incorrectCounter + "</p>");
 }
 
+// used to keep track of the time 
+var timer = function () {
+// if the time runs out then the game will end and display the current score up to that point 
+  if ( time = 0) {
+    endGame();
+    $("#nextOne").attr("disabled", true);
+    $("#nextOne").text("Refresh to try again!");
+  }
+}
