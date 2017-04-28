@@ -85,14 +85,24 @@ var endGame = function() {
   $('#title').html("GAME OVER!");
   $('#questions').html("<p>Corrent Answers: " + correctCounter +
       "<br />Incorrect Answers: " + incorrectCounter + "</p>");
+// unsure how to stop the moment.duration display, so just hide the id after the duration hit 0  
+  $('#timerDisplay').hide();
 }
 
-// used to keep track of the time 
 var timer = function () {
-// if the time runs out then the game will end and display the current score up to that point 
-  if ( time = 0) {
-    endGame();
-    $("#nextOne").attr("disabled", true);
-    $("#nextOne").text("Refresh to try again!");
-  }
+// only want the quiz to run for 30 seconds
+  var time =20;
+// the   
+  var duration = moment.duration(time * 1000, 'milliseconds');
+// setting intervals by 1000 milliseconds, standard 
+  var interval = 1000;
+
+  setInterval(function(){
+    duration = moment.duration(duration.asMilliseconds() - interval, 'milliseconds');
+    if (duration.asMilliseconds() === 0 ) {
+      endGame();
+    }
+    //show how many hours, minutes and seconds are left
+    $('#timerDisplay').text(moment(duration.asMilliseconds()).format('mm:ss'));
+  }, interval);
 }
